@@ -1,12 +1,12 @@
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {IClassicProductsParamList} from './interfaces';
+import {IClassicProductsStackParamList} from './interfaces';
 import HomeStack from './HomeStack';
 import Notification from '../screens/Notification/Notification';
 
 const ClassicProductsStack = function ClassicProductsStack() {
-  const Tab = createBottomTabNavigator<IClassicProductsParamList>();
+  const Tab = createBottomTabNavigator<IClassicProductsStackParamList>();
 
   return (
     <Tab.Navigator

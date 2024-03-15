@@ -64,3 +64,7 @@ yarn-error.log
 
 # testing
 /coverage
+
+
+#remove credentials
+/android/app/google-services.json

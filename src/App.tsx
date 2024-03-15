@@ -2,6 +2,7 @@ import {useEffect} from 'react';
 import * as React from 'react';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import AppNavigationContainer from './navigation/AppNavigationContainer';
+import ProductProvider from './provider/ProductProvider/ProductProvider';
 
 const App = () => {
   useEffect(function componentDidMount() {
@@ -10,7 +11,9 @@ const App = () => {
 
   return (
     <SafeAreaProvider>
-      <AppNavigationContainer />
+      <ProductProvider>
+        <AppNavigationContainer />
+      </ProductProvider>
     </SafeAreaProvider>
   );
 };
