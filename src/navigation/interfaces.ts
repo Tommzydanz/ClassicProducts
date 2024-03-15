@@ -1,4 +1,4 @@
-export type IClassicProductsParamList = {
+export type IClassicProductsStackParamList = {
   ClassicProducts: undefined;
   Notification: undefined;
 };
