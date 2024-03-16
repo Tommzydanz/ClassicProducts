@@ -9,25 +9,38 @@ import {
   Image,
   ActivityIndicator,
 } from 'react-native';
-import React, {useCallback, useContext, useState} from 'react';
+import React, {useCallback, useState} from 'react';
+import {CommonActions} from '@react-navigation/native';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
+import notifee from '@notifee/react-native';
 import Input from '../../components/Input/Input';
 import ImageCropPicker from 'react-native-image-crop-picker';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Button from '../../components/Button/Button';
 import {AddProductProps} from './interface';
-import {ProductContext} from '../../provider/ProductProvider/ProductContext';
-import {IProductContext} from '../../provider/ProductProvider/interface';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const AddProduct: AddProductProps = function AddProduct() {
+const AddProduct: AddProductProps = function AddProduct({navigation}) {
   const [enteredName, setEnteredName] = useState<string | null>('');
   const [enteredPrice, setEnteredPrice] = useState<string | null>('');
   const [pickedImage, setPickedImage] = useState(null);
+  const [_notifications, setNotifications] = useState<any[]>();
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [transferred, setTransferred] = useState<number>(0);
 
-  const {product} = useContext<IProductContext>(ProductContext);
+  const continueToNext = useCallback(
+    (screenName: string) => {
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{name: screenName}],
+        }),
+      );
+    },
+
+    [navigation],
+  );
 
   const handleNameChange = useCallback((enteredText: string) => {
     setEnteredName(enteredText);
@@ -80,10 +93,55 @@ const AddProduct: AddProductProps = function AddProduct() {
     ]);
   }, []);
 
-  let imagePreview = <Text>No Image taken yet.</Text>;
+  let imagePreview = <Text style={{color: 'black'}}>No Image taken yet.</Text>;
 
   if (pickedImage) {
     imagePreview = <Image source={{uri: pickedImage}} style={styles.image} />;
+  }
+
+  async function onDisplayNotification() {
+    try {
+      // Request permissions (required for iOS)
+      await notifee.requestPermission();
+
+      // Create a channel (required for Android)
+      const channelId = await notifee.createChannel({
+        id: 'default',
+        name: 'Default Channel',
+      });
+
+      // Display a notification
+      const notificationId = await notifee.displayNotification({
+        title: 'Upload Limit Reached!',
+        body: 'You have reached the maximum upload limit of 5 products.',
+        android: {
+          channelId,
+          pressAction: {
+            id: 'default',
+          },
+        },
+      });
+
+      // Store the notification data in AsyncStorage
+      const notificationData = {
+        id: notificationId,
+        title: 'Upload Limit Reached!',
+        body: 'You have reached the maximum upload limit of 5 products.',
+      };
+      const existingNotifications = await AsyncStorage.getItem('notifications');
+      const updatedNotifications: any[] = existingNotifications
+        ? [...JSON.parse(existingNotifications), notificationData]
+        : [notificationData];
+      await AsyncStorage.setItem(
+        'notifications',
+        JSON.stringify(updatedNotifications),
+      );
+
+      // Update the notifications state
+      setNotifications(updatedNotifications);
+    } catch (error) {
+      console.log('Error displaying notification:', error);
+    }
   }
 
   const addProduct = async () => {
@@ -91,6 +149,21 @@ const AddProduct: AddProductProps = function AddProduct() {
     console.log('Image Url: ', imageUrl);
     console.log('name: ', enteredName);
     console.log('price: ', enteredPrice);
+
+    const productSnapshot = await firestore().collection('products').get();
+    const totalProducts = productSnapshot.size;
+
+    if (totalProducts >= 5) {
+      // Display a notification or alert when the limit is reached
+      onDisplayNotification();
+
+      Alert.alert(
+        'Product Limit Reached',
+        'You have reached the limit of 5 products. You cannot add another product.',
+        [{text: 'OK', onPress: () => continueToNext('Home')}],
+      );
+      return; // Stop the function execution
+    }
 
     firestore()
       .collection('products')
@@ -105,6 +178,7 @@ const AddProduct: AddProductProps = function AddProduct() {
         Alert.alert(
           'Classic Product Uploaded!',
           'Your product has been uploaded Successfully!',
+          [{text: 'OK', onPress: () => continueToNext('Home')}],
         );
         setEnteredName(null);
         setEnteredPrice(null);
