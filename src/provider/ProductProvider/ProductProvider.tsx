@@ -7,10 +7,10 @@ import {IProduct, IProductProviderProps} from './interface';
 const ProductProvider: IProductProviderProps = function ProductProvider({
   children,
 }) {
-  const [product, setProduct] = useState<IProduct>();
+  const [product, setProduct] = useState<IProduct[]>();
 
   const saveProduct = useCallback(
-    async (newProduct: IProduct): Promise<void> => {
+    async (newProduct: IProduct[]): Promise<void> => {
       const newProductsList = [newProduct];
       await AsyncStorage.setItem(
         'CLASSIC_PRODUCT',
