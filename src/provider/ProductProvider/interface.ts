@@ -6,13 +6,13 @@ export type IProductProviderProps = React.FC<{
 
 export interface IProduct {
   id: string;
-  name: string | undefined;
-  image: string | null;
+  product: string | undefined;
+  productImg: string | null;
   price: string | undefined;
 }
 
 export type IProductContext = {
-  product?: IProduct;
-  setProduct?: (product: IProduct) => void;
-  saveProduct?: (product: IProduct) => Promise<void>;
+  product?: IProduct[];
+  setProduct?: (product: IProduct[]) => void;
+  saveProduct?: (products: IProduct[]) => Promise<void>;
 };

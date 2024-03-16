@@ -38,6 +38,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     alignItems: 'flex-start',
+    color: 'black',
   },
   input: {
     paddingHorizontal: 18,

@@ -17,6 +17,7 @@ const ClassicProductsStack = function ClassicProductsStack() {
           position: 'absolute',
           marginBottom: 5, //add border top left radius
         },
+        tabBarActiveTintColor: '#bfa760',
       }}>
       <Tab.Screen
         name="ClassicProducts"
@@ -34,7 +35,7 @@ const ClassicProductsStack = function ClassicProductsStack() {
         component={Notification}
         options={{
           tabBarIcon: ({color}) => (
-            <Icon name={'alarm'} size={24} color={color} />
+            <Icon name={'notifications'} size={24} color={color} />
           ),
         }}
       />
