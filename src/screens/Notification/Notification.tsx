@@ -2,20 +2,36 @@ import {View, Text, StyleSheet, FlatList} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {NotificationProps} from './interface';
+import {useIsFocused} from '@react-navigation/native';
 
 const Notification: NotificationProps = function Notification() {
-  const [notifications, setNotifications] = useState<any[]>();
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const isFocused = useIsFocused();
 
   useEffect(() => {
-    // Retrieve notifications from AsyncStorage on component mount
     const getNotifications = async () => {
-      const storedNotifications = await AsyncStorage.getItem('notifications');
-      if (storedNotifications) {
-        setNotifications(JSON.parse(storedNotifications));
+      try {
+        const storedNotifications = await AsyncStorage.getItem('notifications');
+        if (storedNotifications) {
+          setNotifications(JSON.parse(storedNotifications));
+        }
+      } catch (error) {
+        console.log('Error retrieving notifications:', error);
       }
     };
-    getNotifications();
-  }, []);
+
+    if (isFocused) {
+      getNotifications();
+    }
+  }, [isFocused]);
+
+  if (!notifications || notifications.length === 0) {
+    return (
+      <View style={styles.fallbackContainer}>
+        <Text style={styles.fallbackText}>No notification available</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.rootContainer}>
@@ -58,5 +74,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     elevation: 4,
+  },
+  fallbackContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  fallbackText: {
+    fontSize: 16,
+    color: 'black',
   },
 });

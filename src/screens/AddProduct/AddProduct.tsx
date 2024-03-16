@@ -165,6 +165,14 @@ const AddProduct: AddProductProps = function AddProduct({navigation}) {
       return; // Stop the function execution
     }
 
+    if (imageUrl === null || enteredName === '' || enteredPrice === '') {
+      Alert.alert(
+        'No Product Added',
+        'Please input a name, price and photo to add product.',
+      );
+      return;
+    }
+
     firestore()
       .collection('products')
       .add({
