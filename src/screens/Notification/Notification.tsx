@@ -17,6 +17,14 @@ const Notification: NotificationProps = function Notification() {
     getNotifications();
   }, []);
 
+  if (!notifications || notifications.length === 0) {
+    return (
+      <View style={styles.fallbackContainer}>
+        <Text style={styles.fallbackText}>No notification available</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.rootContainer}>
       <FlatList
@@ -58,5 +66,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     elevation: 4,
+  },
+  fallbackContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  fallbackText: {
+    fontSize: 16,
+    color: 'black',
   },
 });
