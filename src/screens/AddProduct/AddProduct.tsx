@@ -144,7 +144,52 @@ const AddProduct: AddProductProps = function AddProduct({navigation}) {
     }
   }
 
-  const addProduct = async () => {
+  const uploadImage = useCallback(async () => {
+    if (pickedImage == null) {
+      return null;
+    }
+    const uploadUri: any = pickedImage;
+    let filename = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
+
+    // Add timestamp to File Name
+    const extension = filename.split('.').pop();
+    const name = filename.split('.').slice(0, -1).join('.');
+    filename = name + Date.now() + '.' + extension;
+
+    setIsUploading(true);
+
+    const storageRef = storage().ref(`photos/${filename}`);
+
+    const task = storageRef.putFile(uploadUri);
+
+    // Set transferred state
+    task.on('state_changed', taskSnapshot => {
+      console.log(
+        `${taskSnapshot.bytesTransferred} transferred out of ${taskSnapshot.totalBytes}`,
+      );
+
+      setTransferred(
+        Math.round(taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) *
+          100,
+      );
+    });
+
+    try {
+      await task;
+
+      const url = await storageRef.getDownloadURL();
+
+      setIsUploading(false);
+      setPickedImage(null);
+
+      return url;
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  }, [pickedImage]);
+
+  const addProduct = useCallback(async () => {
     const imageUrl = await uploadImage();
     console.log('Image Url: ', imageUrl);
     console.log('name: ', enteredName);
@@ -197,52 +242,7 @@ const AddProduct: AddProductProps = function AddProduct({navigation}) {
           error,
         );
       });
-  };
-
-  const uploadImage = async () => {
-    if (pickedImage == null) {
-      return null;
-    }
-    const uploadUri: any = pickedImage;
-    let filename = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
-
-    // Add timestamp to File Name
-    const extension = filename.split('.').pop();
-    const name = filename.split('.').slice(0, -1).join('.');
-    filename = name + Date.now() + '.' + extension;
-
-    setIsUploading(true);
-
-    const storageRef = storage().ref(`photos/${filename}`);
-
-    const task = storageRef.putFile(uploadUri);
-
-    // Set transferred state
-    task.on('state_changed', taskSnapshot => {
-      console.log(
-        `${taskSnapshot.bytesTransferred} transferred out of ${taskSnapshot.totalBytes}`,
-      );
-
-      setTransferred(
-        Math.round(taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) *
-          100,
-      );
-    });
-
-    try {
-      await task;
-
-      const url = await storageRef.getDownloadURL();
-
-      setIsUploading(false);
-      setPickedImage(null);
-
-      return url;
-    } catch (e) {
-      console.log(e);
-      return null;
-    }
-  };
+  }, [continueToNext, enteredName, enteredPrice, uploadImage]);
 
   return (
     <ScrollView style={styles.form}>
