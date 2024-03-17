@@ -49,8 +49,10 @@ const Home: HomeProps = function Home() {
     }
   };
 
-  useEffect(() => {
+  useEffect(function componentDidMount() {
     fetchProducts();
+    return function componentWillUnmount() {};
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
