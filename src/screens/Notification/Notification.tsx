@@ -1,5 +1,5 @@
+import React, {useCallback, useEffect, useState} from 'react';
 import {View, Text, StyleSheet, FlatList} from 'react-native';
-import React, {useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {NotificationProps} from './interface';
 import {useIsFocused} from '@react-navigation/native';
@@ -8,22 +8,18 @@ const Notification: NotificationProps = function Notification() {
   const [notifications, setNotifications] = useState<any[]>([]);
   const isFocused = useIsFocused();
 
-  useEffect(() => {
-    const getNotifications = async () => {
-      try {
-        const storedNotifications = await AsyncStorage.getItem('notifications');
-        if (storedNotifications) {
-          setNotifications(JSON.parse(storedNotifications));
-        }
-      } catch (error) {
-        console.log('Error retrieving notifications:', error);
-      }
-    };
+  const getNotifications = useCallback(async () => {
+    const storedNotifications = await AsyncStorage.getItem('notifications');
+    if (storedNotifications) {
+      setNotifications(JSON.parse(storedNotifications));
+    }
+  }, []);
 
+  useEffect(() => {
     if (isFocused) {
       getNotifications();
     }
-  }, [isFocused]);
+  }, [getNotifications, isFocused]);
 
   if (!notifications || notifications.length === 0) {
     return (
