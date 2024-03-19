@@ -6,9 +6,12 @@ const ProductItem: IProductItemProps = function ProductItem({
   productName,
   price,
   image,
+  onPress,
 }) {
   return (
-    <Pressable style={({pressed}) => [styles.item, pressed && styles.pressed]}>
+    <Pressable
+      onPress={onPress}
+      style={({pressed}) => [styles.item, pressed && styles.pressed]}>
       <Image style={styles.image} source={image} resizeMode="contain" />
       <View style={styles.product}>
         <Text style={styles.name}>{productName}</Text>
